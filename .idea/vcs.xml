@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third_party/abseil/src/abseil-cpp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third_party/antlr4/src/antlr4" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third_party/gumbo-parser/src/gumbo-parser" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third_party/gumbo-parser/src/gumbo-parser/testdata" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third_party/gumbo-parser/src/gumbo-parser/third_party/gtest" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third_party/gumbo-query/src/gumbo-query" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third_party/gumbo/src/gumbo" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third_party/gumbo/src/gumbo/testdata" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third_party/gumbo/src/gumbo/third_party/gtest" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third_party/libcurl/src/curl" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third_party/openssl/src/openssl" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third_party/openssl/src/openssl-cmake" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third_party/openssl/src/openssl/boringssl" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third_party/openssl/src/openssl/krb5" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third_party/openssl/src/openssl/pyca-cryptography" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third_party/spdlog/src/spdlog" vcs="Git" />
+  </component>
+</project>

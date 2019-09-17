@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package message.definition.swift.mt;
+
+message SwiftMtMessageDefinition {
+    string service_release = 1;
+    string message_type = 2;
+
+    repeated ObjectDef objects = 3;
+}
+
+message ObjectDef {
+    string tag = 1;
+
+    oneof object_oneof {
+        SequenceDef sequence = 5;
+        FieldDef field = 6;
+        RepetitionDef repetition = 7;
+    }
+}
+
+message RepetitionDef {
+    repeated ObjectDef objects = 1;
+}
+
+message SequenceDef {
+    string tag = 1;
+    string name = 2;
+    bool repeatable = 3;
+    bool mandatory = 4;
+    repeated ObjectDef objects = 5;
+}
+
+message FieldDef {
+    string tag = 1;
+    repeated OptionDef options = 5;
+    repeated QualifierDef qualifiers = 10;
+}
+
+message OptionDef {
+    string option = 1;
+    string full_format = 2;
+    repeated ComponentName component_names = 3;
+    repeated ComponentFormatEntry component_formats = 4;
+}
+
+message ComponentName {
+    string name = 1;
+    string separator_before = 2;
+    string separator_after = 3;
+}
+
+message ComponentFormatEntry {
+    string format = 1;
+    string separator_before = 2;
+    string separator_after = 3;
+}
+
+message QualifierDef {
+    string qualifier = 1;
+    repeated string options = 2;
+    string description = 3;
+}
