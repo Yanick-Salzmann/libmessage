@@ -119,7 +119,7 @@ fabric.properties
 cmake-build-debug
 cmake-build-release
 
-third_party
+third_party/**
 !third_party/CMakeLists.txt
 
 .idea/compilerexplorer.settings.xml
