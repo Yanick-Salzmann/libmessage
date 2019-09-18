@@ -7,9 +7,9 @@ namespace message::utils::http {
 
     HttpClient::HttpClient() {
         _curl = curl_easy_init();
-        curl_easy_setopt(_curl, CURLOPT_FOLLOWLOCATION, TRUE);
-        curl_easy_setopt(_curl, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_easy_setopt(_curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_easy_setopt(_curl, CURLOPT_FOLLOWLOCATION, 1);
+        curl_easy_setopt(_curl, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_easy_setopt(_curl, CURLOPT_SSL_VERIFYHOST, 0);
         curl_easy_setopt(_curl, CURLOPT_COOKIEFILE, "");
         curl_easy_setopt(_curl, CURLOPT_ERRORBUFFER, _curl_error_buffer);
         curl_easy_setopt(_curl, CURLOPT_WRITEDATA, this);

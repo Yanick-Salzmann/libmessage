@@ -4,6 +4,7 @@
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/third_party/abseil/src/abseil-cpp" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/third_party/antlr4/src/antlr4" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third_party/filesystem/src/filesystem" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/third_party/gumbo-parser/src/gumbo-parser" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/third_party/gumbo-parser/src/gumbo-parser/testdata" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/third_party/gumbo-parser/src/gumbo-parser/third_party/gtest" vcs="Git" />
@@ -17,6 +18,9 @@
     <mapping directory="$PROJECT_DIR$/third_party/openssl/src/openssl/boringssl" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/third_party/openssl/src/openssl/krb5" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/third_party/openssl/src/openssl/pyca-cryptography" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third_party/protobuf/src/protobuf" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third_party/protobuf/src/protobuf/third_party/benchmark" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third_party/protobuf/src/protobuf/third_party/googletest" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/third_party/spdlog/src/spdlog" vcs="Git" />
   </component>
 </project>

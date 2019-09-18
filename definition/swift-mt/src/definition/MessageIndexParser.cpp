@@ -1,4 +1,3 @@
-#include <filesystem>
 #include "web/MessageIndexEntry.hpp"
 #include "web/MessageIndex.hpp"
 #include "web/WebDefinitionRepository.hpp"
@@ -9,6 +8,14 @@
 #include <google/protobuf/util/json_util.h>
 #include <fstream>
 #include <string/comparison.hpp>
+
+#ifndef USE_EXTERNAL_FILESYSTEM
+#include <filesystem>
+namespace fs = std::filesystem;
+#else
+#include <ghc/filesystem.hpp>
+namespace fs = ghc::filesystem;
+#endif
 
 namespace message::definition::swift::mt::definition {
     LOGGER_IMPL(MessageIndexParser);
@@ -31,7 +38,7 @@ namespace message::definition::swift::mt::definition {
     }
 
     void MessageIndexParser::put_in_cache(const web::MessageIndexEntry &entry, const SwiftMtMessageDefinition &definition) const {
-        std::filesystem::path cache_path{_cache_path};
+        fs::path cache_path{_cache_path};
         cache_path /= _repository.service_release();
         cache_path /= fmt::format("mt_{}.json", entry.message_type());
 
@@ -50,11 +57,11 @@ namespace message::definition::swift::mt::definition {
     }
 
     bool MessageIndexParser::is_cached(const web::MessageIndexEntry &entry) const {
-        std::filesystem::path cache_path{_cache_path};
+        fs::path cache_path{_cache_path};
         cache_path /= _repository.service_release();
         cache_path /= fmt::format("mt_{}.json", entry.message_type());
 
-        return std::filesystem::exists(cache_path);
+        return exists(cache_path);
     }
 
     SwiftMtMessageDefinition MessageIndexParser::parse_definition_from_detail_page(const web::MessageIndexEntry &entry, const std::string &detail_content) {

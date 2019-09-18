@@ -1,8 +1,18 @@
 #include "WebDefinitionRepository.hpp"
 #include <http/HttpClient.hpp>
+#ifndef USE_EXTERNAL_FILESYSTEM
 #include <filesystem>
+#else
+#include <ghc/filesystem.hpp>
+#endif
 #include <fstream>
 #include <string/conversion.hpp>
+
+#ifndef USE_EXTERNAL_FILESYSTEM
+namespace fs = std::filesystem;
+#else
+namespace fs = ghc::filesystem;
+#endif
 
 namespace message::definition::swift::mt::web {
 
@@ -26,7 +36,7 @@ namespace message::definition::swift::mt::web {
     }
 
     bool WebDefinitionRepository::load_from_cache(const std::string &file, std::string &result) {
-        auto root_path = std::filesystem::u8path(_cache_directory);
+        auto root_path = fs::u8path(_cache_directory);
         root_path /= _service_release;
         root_path /= "web";
         root_path /= file + ".htm";
@@ -58,7 +68,7 @@ namespace message::definition::swift::mt::web {
     }
 
     void WebDefinitionRepository::write_to_cache(const std::string &file, const std::string &content) {
-        auto root_path = std::filesystem::u8path(_cache_directory);
+        auto root_path = fs::u8path(_cache_directory);
         root_path /= _service_release;
         root_path /= "web";
         root_path /= file + ".htm";
@@ -66,9 +76,9 @@ namespace message::definition::swift::mt::web {
         log->debug("Caching {} in file {}", file, absolute(root_path).string());
 
         const auto parent = root_path.parent_path();
-        if (!std::filesystem::exists(parent)) {
+        if (!exists(parent)) {
             std::error_code ec{};
-            if(!std::filesystem::create_directories(parent, ec)) {
+            if(!create_directories(parent, ec)) {
                 log->error("Error creating parent directories: {}", ec.message());
                 throw std::runtime_error(ec.message());
             }

@@ -1,11 +1,10 @@
 #include "string/comparison.hpp"
-#include <absl/strings/match.h>
 #include "string/conversion.hpp"
 
 namespace message::utils::string {
 
     bool contains(const std::string &str, const std::string &search) {
-        return absl::StrContains(str, search);
+        return str.find(search) != std::string::npos;
     }
 
     bool contains_ignore_case(const std::string &str, const std::string &search) {

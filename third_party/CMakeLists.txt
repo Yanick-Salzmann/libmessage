@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.14)
 project(ThirdParty)
 
 include(ExternalProject)
+include(CheckIncludeFile)
 
 set(ANTLR4_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/antlr4)
 set(CURL_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/libcurl)
@@ -12,6 +13,7 @@ set(GUMBO_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/gumbo-parser)
 set(OPENSSL_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/openssl)
 set(PROTOBUF_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/protobuf)
 set(ABSEIL_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/abseil)
+set(FS_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/filesystem)
 
 ExternalProject_Add(
         antlr4
@@ -43,6 +45,7 @@ if (OpenSSL_FOUND)
             -DENABLE_MANUAL:BOOL=OFF
             -DCMAKE_USE_OPENSSL:BOOL=ON
             -DBUILD_TESTING:BOOL=OFF
+            -DOPENSSL_ROOT_DIR:PATH=${OPENSSL_ROOT_DIR}
     )
 else ()
     message("OpenSSL not found, building from source...")
@@ -101,6 +104,12 @@ ExternalProject_Add(
         -DSPDLOG_BUILD_BENCH:BOOL=OFF
 )
 
+if (WIN32)
+    set(GUMBO_LIBRARY_PATH ${CMAKE_CURRENT_BINARY_DIR}/gumbo-parser/lib/gumbo.lib)
+else ()
+    set(GUMBO_LIBRARY_PATH ${CMAKE_CURRENT_BINARY_DIR}/gumbo-parser/lib/libgumbo.a)
+endif ()
+
 ExternalProject_Add(
         gumbo-query
         PREFIX ${GUMBO_QUERY_ROOT}
@@ -112,8 +121,8 @@ ExternalProject_Add(
         CMAKE_CACHE_ARGS
         -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/gumbo-query
         -DGumbo_INCLUDE_DIR:PATH=${CMAKE_CURRENT_BINARY_DIR}/gumbo-parser/include/gumbo
-        -DGumbo_LIBRARY:FILE=${CMAKE_CURRENT_BINARY_DIR}/gumbo-parser/lib/gumbo.lib
-        -DGumbo_static_LIBRARY:FILEPATH=${CMAKE_CURRENT_BINARY_DIR}/gumbo-parser/lib/gumbo.lib
+        -DGumbo_LIBRARY:FILE=${GUMBO_LIBRARY_PATH}
+        -DGumbo_static_LIBRARY:FILEPATH=${GUMBO_LIBRARY_PATH}
 )
 
 ExternalProject_Add(
@@ -137,7 +146,7 @@ ExternalProject_Add(
         GIT_TAG master
         UPDATE_COMMAND ""
         PATCH_COMMAND ""
-        SOURCE_DIR ${PROTBUF_ROOT}/src/protobuf
+        SOURCE_DIR ${PROTOBUF_ROOT}/src/protobuf
         SOURCE_SUBDIR cmake
         CMAKE_CACHE_ARGS
         -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/protobuf
@@ -159,3 +168,20 @@ ExternalProject_Add(
         CMAKE_CACHE_ARGS
         -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/abseil
 )
+
+check_include_file("filesystem" HAVE_FILESYSTEM_HEADER)
+
+if ("${HAVE_FILESYSTEM_HEADER}" STREQUAL "")
+    ExternalProject_Add(
+            filesystem
+            PREFIX ${FS_ROOT}
+            GIT_REPOSITORY https://github.com/gulrak/filesystem.git
+            GIT_TAG master
+            UPDATE_COMMAND ""
+            SOURCE_DIR ${FS_ROOT}/src/filesystem
+            CMAKE_CACHE_ARGS
+            -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/filesystem
+            -DBUILD_TESTING:BOOL=FALSE
+            -DBUILD_EXAMPLES:BOOL=FALSE
+    )
+endif ()
