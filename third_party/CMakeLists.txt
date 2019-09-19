@@ -34,7 +34,7 @@ ExternalProject_Add(
 ExternalProject_Add_Step(
         antlr4
         java-build
-        COMMAND mvnw package -DskipTests -f antlr4/src/antlr4 -pl runtime/Java -am
+        COMMAND ./mvnw package -DskipTests -f antlr4/src/antlr4 -pl runtime/Java -am
         COMMENT "Building Java Antlr4"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         ALWAYS TRUE
