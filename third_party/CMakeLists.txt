@@ -22,7 +22,8 @@ ExternalProject_Add(
         GIT_TAG master
         UPDATE_COMMAND ""
         PATCH_COMMAND ""
-        SOURCE_DIR ${ANTLR4_ROOT}/src/antlr4/runtime/Cpp
+        SOURCE_DIR ${ANTLR4_ROOT}/src/antlr4
+        SOURCE_SUBDIR runtime/Cpp
         CMAKE_CACHE_ARGS
         -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/antlr4
 )
