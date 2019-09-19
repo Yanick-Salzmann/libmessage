@@ -1,0 +1,20 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- script: apt-get update && apt-get install openssl openssl-dev
+  displayName: Install OpenSSL
+
+- task: CMake@1
+  inputs:
+    workingDirectory: 'cmake-build-debug'
+    cmakeArgs: "-DCMAKE_BUILD_TYPE=Debug"
+  displayName: 'CMake Debug Init'
