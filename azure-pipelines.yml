@@ -22,5 +22,5 @@ steps:
 - task: CMake@1
   inputs:
    workingDirectory: 'cmake-build-debug'
-   cmakeArgs: "--build"
+   cmakeArgs: "--build . -- -j 4"
   displayName: 'CMake Build Debug'
