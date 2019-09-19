@@ -122,6 +122,7 @@ cmake-build-release
 third_party/**
 !third_party/CMakeLists.txt
 !third_party/mvnw*
+!third_party/.mvn/wrapper/maven-wrapper.properties
 
 .idea/compilerexplorer.settings.xml
 .idea/discord.xml
