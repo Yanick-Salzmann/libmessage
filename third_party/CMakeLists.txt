@@ -26,6 +26,8 @@ ExternalProject_Add(
         SOURCE_SUBDIR runtime/Cpp
         CMAKE_CACHE_ARGS
         -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/antlr4
+        -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
+        -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
 )
 
 find_package(OpenSSL)
@@ -47,6 +49,8 @@ if (OpenSSL_FOUND)
             -DCMAKE_USE_OPENSSL:BOOL=ON
             -DBUILD_TESTING:BOOL=OFF
             -DOPENSSL_ROOT_DIR:PATH=${OPENSSL_ROOT_DIR}
+            -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
+            -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
     )
 else ()
     message("OpenSSL not found, building from source...")
@@ -84,6 +88,8 @@ else ()
             -DOPENSSL_INCLUDE_DIR:PATH=${CMAKE_CURRENT_SOURCE_DIR}/openssl/src/openssl/dist/include
             -DOPENSSL_LIBRARY:FILEPATH=${CMAKE_CURRENT_SOURCE_DIR}/openssl/src/openssl/dist/lib/libssl.lib
             -DOPENSSL_CRYPTO_LIBRARY:FILEPATH=${CMAKE_CURRENT_SOURCE_DIR}/openssl/src/openssl/dist/lib/libcrypto.lib
+            -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
+            -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
     )
 
     add_dependencies(curl openssl)
@@ -103,6 +109,8 @@ ExternalProject_Add(
         -DSPDLOG_BUILD_TESTS:BOOL=OFF
         -DSPDLOG_BUILD_TESTS_HO:BOOL=OFF
         -DSPDLOG_BUILD_BENCH:BOOL=OFF
+        -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
+        -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
 )
 
 if (WIN32)
@@ -124,6 +132,8 @@ ExternalProject_Add(
         -DGumbo_INCLUDE_DIR:PATH=${CMAKE_CURRENT_BINARY_DIR}/gumbo-parser/include/gumbo
         -DGumbo_LIBRARY:FILE=${GUMBO_LIBRARY_PATH}
         -DGumbo_static_LIBRARY:FILEPATH=${GUMBO_LIBRARY_PATH}
+        -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
+        -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
 )
 
 ExternalProject_Add(
@@ -136,6 +146,8 @@ ExternalProject_Add(
         SOURCE_DIR ${GUMBO_ROOT}/src/gumbo-parser
         CMAKE_CACHE_ARGS
         -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/gumbo-parser
+        -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
+        -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
 )
 
 add_dependencies(gumbo-query gumbo)
@@ -156,6 +168,8 @@ ExternalProject_Add(
         -Dprotobuf_BUILD_EXAMPLES:BOOL=OFF
         -Dprotobuf_BUILD_SHARED_LIBS:BOOL=OFF
         -Dprotobuf_MSVC_STATIC_RUNTIME:BOOL=OFF
+        -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
+        -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
 )
 
 ExternalProject_Add(
@@ -168,6 +182,8 @@ ExternalProject_Add(
         SOURCE_DIR ${ABSEIL_ROOT}/src/abseil-cpp
         CMAKE_CACHE_ARGS
         -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/abseil
+        -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
+        -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
 )
 
 check_include_file("filesystem" HAVE_FILESYSTEM_HEADER)
@@ -184,5 +200,7 @@ if ("${HAVE_FILESYSTEM_HEADER}" STREQUAL "")
             -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/filesystem
             -DBUILD_TESTING:BOOL=FALSE
             -DBUILD_EXAMPLES:BOOL=FALSE
+            -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
+            -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
     )
 endif ()
