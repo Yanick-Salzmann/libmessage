@@ -8,12 +8,15 @@
 #include <google/protobuf/util/json_util.h>
 #include <fstream>
 #include <string/comparison.hpp>
+#include <sstream>
 
 #ifndef USE_EXTERNAL_FILESYSTEM
 #include <filesystem>
 namespace fs = std::filesystem;
 #else
 #include <ghc/filesystem.hpp>
+#include <string/conversion.hpp>
+
 namespace fs = ghc::filesystem;
 #endif
 
@@ -266,17 +269,18 @@ namespace message::definition::swift::mt::definition {
 
     void MessageIndexParser::handle_field_details(ObjectDef *obj, const std::string &detail_link) {
         utils::http::HtmlDocument doc{detail_link};
-        load_component_formats(obj, doc);
+        load_options(obj, doc);
         load_qualifiers(obj, doc);
     }
 
-    void MessageIndexParser::load_component_formats(ObjectDef *obj, const utils::http::HtmlDocument &document) {
+    void MessageIndexParser::load_options(ObjectDef *obj, const utils::http::HtmlDocument &document) {
         auto field_def = obj->mutable_field();
 
         const auto format_rows = document.select("table.formattable tr");
 
         for (const auto &row : format_rows) {
-            const auto fields = select_fields_as_string(row, "td");
+            std::vector<utils::http::HtmlNode> nodes;
+            const auto fields = select_fields_as_string(row, "td", nodes);
 
             std::string option{}, format{};
             const auto first_field = fields[0];
@@ -284,15 +288,17 @@ namespace message::definition::swift::mt::definition {
             if (first_field.find("Option ") == 0) {
                 option = fields[0];
                 option = option.substr(std::string{"Option "}.length());
-                format = fields[1];
+                format = convert_children_to_string(nodes[1]);
             } else {
                 option = obj->tag().substr(2);
-                format = fields[0];
+                format = convert_children_to_string(nodes[0]);
             }
 
             auto opt = field_def->add_options();
             opt->set_option(option);
             opt->set_full_format(format);
+
+            load_component_names(opt, convert_children_to_string(nodes.back()));
         }
     }
 
@@ -351,6 +357,51 @@ namespace message::definition::swift::mt::definition {
 
     std::vector<std::string> MessageIndexParser::select_fields_as_string(const utils::http::ISelectable &element, const std::string &selector) {
         const auto nodes = element.select(selector);
+        std::vector<std::string> fields{};
+        std::transform(nodes.begin(), nodes.end(), std::back_inserter(fields), [](const auto &node) { return node.text(); });
+        return fields;
+    }
+
+    std::string MessageIndexParser::convert_children_to_string(const utils::http::HtmlNode &node, bool crlf) const {
+        std::stringstream strm;
+        const auto children = node.children();
+        for(const auto& child : children) {
+            const auto tag = utils::string::to_lower(child.tag_name());
+            if(tag == "br") {
+                strm << (crlf ? "\r\n" : "\n");
+            } else if(!tag.empty()) {
+                strm << convert_children_to_string(child, crlf);
+            } else {
+                strm << child.text();
+            }
+        }
+
+        return strm.str();
+    }
+
+    void MessageIndexParser::load_component_names(OptionDef *optn, const std::string& components) {
+        std::smatch match;
+        auto remainder = components;
+
+        while(std::regex_search(remainder, match, COMPONENT_NAME_MATCHER)) {
+            auto* name = optn->add_component_names();
+            name->set_name(match[2].str());
+            if(match[1].matched) {
+                name->set_separator_before(match[1].str());
+            }
+
+            if(match[3].matched) {
+                name->set_separator_after(match[3].str());
+            }
+
+            remainder = match.suffix();
+        }
+    }
+
+    std::vector<std::string> MessageIndexParser::select_fields_as_string(const utils::http::ISelectable &element, const std::string &selector,
+                                                std::vector<utils::http::HtmlNode>& nodes) {
+        const auto element_nodes = element.select(selector);
+        nodes.insert(nodes.end(), element_nodes.begin(), element_nodes.end());
         std::vector<std::string> fields{};
         std::transform(nodes.begin(), nodes.end(), std::back_inserter(fields), [](const auto &node) { return node.text(); });
         return fields;

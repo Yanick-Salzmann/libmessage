@@ -32,6 +32,8 @@ namespace message::definition::swift::mt::definition {
 
         const std::regex QUALIFIER_OPTIONS{"(([A-Z])(, )?(or )?)"};
 
+        const std::regex COMPONENT_NAME_MATCHER{"([^(]+)?\\(([^)]+)\\)([^(]+)?"};
+
         web::WebDefinitionRepository& _repository;
         web::MessageIndex& _index;
 
@@ -56,14 +58,33 @@ namespace message::definition::swift::mt::definition {
 
         void handle_field_details(ObjectDef* obj, const std::string& detail_link);
 
-        void load_component_formats(ObjectDef* obj, const utils::http::HtmlDocument& document);
+        void load_options(ObjectDef *obj, const utils::http::HtmlDocument &document);
         void load_qualifiers(ObjectDef* obj, const utils::http::HtmlDocument& document);
 
+        void load_component_names(OptionDef* optn, const std::string& components);
+
         std::vector<std::string> select_fields_as_string(const utils::http::ISelectable& element, const std::string& selector);
+        std::vector<std::string> select_fields_as_string(const utils::http::ISelectable& element, const std::string& selector, std::vector<utils::http::HtmlNode>& nodes);
+
+        std::string convert_children_to_string(const utils::http::HtmlNode& node, bool crlf = true) const;
 
     public:
+        /**
+         * Initializes this message index parser with the online repository to use, the index containing
+         * all resolved message types that should be processed as well as the cache path where the
+         * already parsed definitions will be searched and saved once they are loaded.
+         *
+         * @param repository    Web repository for the service release to parse from.
+         * @param index         Message index containing all available message types
+         * @param cache_path    Root path of the cache folder (not including the service release)
+         */
         MessageIndexParser(web::WebDefinitionRepository& repository, web::MessageIndex& index, std::string cache_path) : _repository(repository), _index(index), _cache_path(std::move(cache_path)) {}
 
+        /**
+         * Processes all definitions found in the message index and generates the
+         * JSON representation of the protobuffer definition in the cache path according
+         * to service release and message type
+         */
         void process_definitions();
     };
 }

@@ -29,6 +29,11 @@ namespace message::utils::http {
         std::string attribute_value(const std::string& name) const;
 
         [[nodiscard]] std::list<HtmlNode> select(const std::string& selector) const override;
+
+        [[nodiscard]] std::list<HtmlNode> children() const;
+
+        bool is_node() const { return !tag_name().empty(); }
+        bool is_text() const { return tag_name().empty(); }
     };
 
     class HtmlDocument : public ISelectable {

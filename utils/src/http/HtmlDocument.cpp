@@ -40,4 +40,14 @@ namespace message::utils::http {
 
         return ret_list;
     }
+
+    std::list<HtmlNode> HtmlNode::children() const {
+        std::list<HtmlNode> ret_list{};
+
+        for(auto i = std::size_t{0}; i < _node.childNum(); ++i) {
+            ret_list.emplace_back(_node.childAt(i));
+        }
+
+        return ret_list;
+    }
 }
