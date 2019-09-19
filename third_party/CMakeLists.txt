@@ -19,7 +19,7 @@ ExternalProject_Add(
         antlr4
         PREFIX ${ANTLR4_ROOT}
         GIT_REPOSITORY https://github.com/antlr/antlr4.git
-        GIT_TAG master
+        GIT_TAG 8bcbea425b110f2fd6524aabd4ef7d823bb5c5c9
         UPDATE_COMMAND ""
         PATCH_COMMAND ""
         SOURCE_DIR ${ANTLR4_ROOT}/src/antlr4
@@ -28,7 +28,19 @@ ExternalProject_Add(
         -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/antlr4
         -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
         -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
+        -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
 )
+
+ExternalProject_Add_Step(
+        antlr4
+        java-build
+        COMMAND mvnw package -DskipTests -f antlr4/src/antlr4 -pl runtime/Java -am
+        COMMENT "Building Java Antlr4"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        ALWAYS TRUE
+)
+
+set(ANTLR4_TOOL ${CMAKE_CURRENT_SOURCE_DIR}/antlr4/src/antlr4/runtime/Java/target/antlr4-runtime-4.7.3-SNAPSHOT.jar)
 
 find_package(OpenSSL)
 if (OpenSSL_FOUND)

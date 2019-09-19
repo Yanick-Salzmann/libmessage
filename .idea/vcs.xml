@@ -4,6 +4,7 @@
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/third_party/abseil/src/abseil-cpp" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/third_party/antlr4/src/antlr4" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third_party/antlr4/src/antlr4/runtime/PHP" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/third_party/filesystem/src/filesystem" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/third_party/gumbo-parser/src/gumbo-parser" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/third_party/gumbo-parser/src/gumbo-parser/testdata" vcs="Git" />

@@ -21,7 +21,7 @@ add_executable(swift-mt-web-repo
         src/web/MessageIndexEntry.hpp
         ${GENERATED_FILES} src/definition/MessageIndexParser.cpp src/definition/MessageIndexParser.hpp src/definition/SequenceStack.cpp src/definition/SequenceStack.hpp)
 
-add_dependencies(swift-mt-web-repo ${GENERATED_TARGET})
+add_dependencies(swift-mt-web-repo ${GENERATED_TARGET} antlr4)
 
 target_link_libraries(swift-mt-web-repo utils Threads::Threads)
 if(UNIX)
