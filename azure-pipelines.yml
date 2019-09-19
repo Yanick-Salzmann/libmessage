@@ -10,7 +10,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- script: apt-get update && apt-get install openssl openssl-dev
+- script: sudo apt-get update && apt-get install -y openssl openssl-dev
   displayName: Install OpenSSL
 
 - task: CMake@1
