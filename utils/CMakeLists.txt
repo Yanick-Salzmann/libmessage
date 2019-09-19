@@ -56,3 +56,7 @@ else ()
             ldap
             )
 endif ()
+
+if(UNIX)
+    target_link_libraries(utils lber)
+endif()
