@@ -13,7 +13,16 @@ find_package(Threads)
 find_package(Java)
 
 add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/antlr/SwiftMtComponentFormatParser.cpp
+        OUTPUT
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/antlr/SwiftMtComponentFormatParser.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/antlr/SwiftMtComponentFormatParser.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/antlr/SwiftMtComponentFormatLexer.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/antlr/SwiftMtComponentFormatLexer.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/antlr/SwiftMtComponentFormatBaseListener.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/antlr/SwiftMtComponentFormatBaseListener.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/antlr/SwiftMtComponentFormatListener.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/antlr/SwiftMtComponentFormatListener.h
+
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/antlr/SwiftMtComponentFormat.g4
         COMMAND ${Java_JAVA_EXECUTABLE}
         ARGS -cp ${CMAKE_SOURCE_DIR}/third_party/antlr4/src/antlr4/tool/target/antlr4-4.7.3-SNAPSHOT-complete.jar
@@ -35,6 +44,9 @@ add_executable(swift-mt-web-repo
         src/web/MessageIndexEntry.cpp
         src/web/MessageIndexEntry.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/antlr/SwiftMtComponentFormatParser.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/antlr/SwiftMtComponentFormatBaseListener.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/antlr/SwiftMtComponentFormatLexer.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/antlr/SwiftMtComponentFormatListener.cpp
         ${GENERATED_FILES} src/definition/MessageIndexParser.cpp src/definition/MessageIndexParser.hpp src/definition/SequenceStack.cpp src/definition/SequenceStack.hpp)
 
 target_compile_definitions(swift-mt-web-repo PUBLIC "-DANTLR4CPP_STATIC -D_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING")

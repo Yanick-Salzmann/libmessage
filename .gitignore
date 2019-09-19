@@ -134,3 +134,9 @@ third_party/**
 
 **/proto/*.pb.cc
 **/proto/*.pb.h
+
+*.interp
+*.tokens
+
+definition/swift-mt/src/antlr/*.cpp
+definition/swift-mt/src/antlr/*.h
