@@ -58,6 +58,7 @@ target_link_libraries(swift-mt-web-repo utils Threads::Threads)
 if (WIN32)
     target_link_libraries(swift-mt-web-repo ${CMAKE_BINARY_DIR}/third_party/antlr4/lib/antlr4-runtime-static.lib)
 else ()
+    target_link_libraries(swift-mt-web-repo ${CMAKE_BINARY_DIR}/third_party/antlr4/lib/libantlr4-runtime.a)
 endif ()
 
 if (UNIX)
