@@ -24,5 +24,8 @@ add_executable(swift-mt-web-repo
 add_dependencies(swift-mt-web-repo ${GENERATED_TARGET})
 
 target_link_libraries(swift-mt-web-repo utils Threads::Threads)
+if(UNIX)
+    target_link_libraries(swift-mt-web-repo lber)
+endif()
 target_include_directories(swift-mt-web-repo PUBLIC ${CMAKE_SOURCE_DIR}/utils/include)
 target_include_directories(swift-mt-web-repo PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
