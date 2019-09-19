@@ -16,7 +16,7 @@ steps:
 - task: CMake@1
   inputs:
     workingDirectory: 'cmake-build-debug'
-    cmakeArgs: "-DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++-8 -DCMAKE_CC_COMPILER=gcc-8 .."
+    cmakeArgs: "-DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++-8 -DCMAKE_C_COMPILER=gcc-8 .."
   displayName: 'CMake Debug Init'
 
 - task: CMake@1
