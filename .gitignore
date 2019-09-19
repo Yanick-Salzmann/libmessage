@@ -129,3 +129,6 @@ third_party/**
 *.iml
 .idea/misc.xml
 .idea/modules.xml
+
+**/proto/*.pb.cc
+**/proto/*.pb.h
