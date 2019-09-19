@@ -10,8 +10,11 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- script: sudo apt-get update && sudo apt-get install -y openssl libssl-dev uuid uuid-dev gcc-8 g++-8
-  displayName: Install OpenSSL
+- script: sudo apt-get update && sudo apt-get install -y openssl libssl-dev uuid uuid-dev
+  displayName: Install Libraries
+
+- script: sudo apt-get install -y gcc-8 g++-8
+  displayName: Install G++ v8
 
 - task: CMake@1
   inputs:
