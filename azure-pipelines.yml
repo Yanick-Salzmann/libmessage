@@ -18,3 +18,9 @@ steps:
     workingDirectory: 'cmake-build-debug'
     cmakeArgs: "-DCMAKE_BUILD_TYPE=Debug .."
   displayName: 'CMake Debug Init'
+
+- task: CMake@1
+  inputs:
+   workingDirectory: 'cmake-build-debug'
+   cmakeArgs: "--build"
+  displayName: 'CMake Build Debug'
