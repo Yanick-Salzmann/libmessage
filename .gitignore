@@ -121,6 +121,7 @@ cmake-build-release
 
 third_party/**
 !third_party/CMakeLists.txt
+!third_party/mvnw*
 
 .idea/compilerexplorer.settings.xml
 .idea/discord.xml
