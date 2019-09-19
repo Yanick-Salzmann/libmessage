@@ -29,19 +29,18 @@ ExternalProject_Add(
         -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
         -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
         -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+        -DWITH_STATIC_CRT:BOOL=OFF
 )
 
 ExternalProject_Add_Step(
         antlr4
         java-build
         DEPENDEES build
-        COMMAND ./mvnw package -DskipTests -f antlr4/src/antlr4 -pl runtime/Java -am
+        COMMAND ./mvnw package -DskipTests -f antlr4/src/antlr4 -pl tool -am
         COMMENT "Building Java Antlr4"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         ALWAYS TRUE
 )
-
-set(ANTLR4_TOOL ${CMAKE_CURRENT_SOURCE_DIR}/antlr4/src/antlr4/runtime/Java/target/antlr4-runtime-4.7.3-SNAPSHOT.jar)
 
 find_package(OpenSSL)
 if (OpenSSL_FOUND)

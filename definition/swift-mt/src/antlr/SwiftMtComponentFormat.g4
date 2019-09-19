@@ -1,4 +1,4 @@
-grammar SwiftMtComponentFormatParser;
+grammar SwiftMtComponentFormat;
 
 comp:               (char_range | exact_chars | multi_line | max_chars);
 
