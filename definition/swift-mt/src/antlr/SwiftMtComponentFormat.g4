@@ -1,8 +1,40 @@
 grammar SwiftMtComponentFormat;
 
-comp:               (char_range | exact_chars | multi_line | max_chars);
+@parser::header {
+#include "proto/SwiftMtComponentDefinition.pb.h"
+#include <stack>
+}
 
-opt_comp:           '[' opt_comp_cttnt ']';
+@parser::members {
+    std::stack<ComponentContent> _component_stack;
+    SwiftMtComponentDefinition _components;
+
+    ComponentContent& current_comp() {
+        return _component_stack.top();
+    }
+
+    void new_component() {
+        _component_stack.push(ComponentContent{});
+    }
+
+    void end_component() {
+        const auto comp = _component_stack.top();
+        _component_stack.pop();
+        if(_component_stack.empty()) {
+            _components.add_formats()->MergeFrom(comp);
+        } else {
+            _component_stack.top().add_formats()->MergeFrom(comp);
+        }
+    }
+}
+
+comp_format:        (comp | opt_comp)+;
+
+comp
+@init { new_component(); }
+                    : separator? { if($separator.ctx) { current_comp().set_separator_before($separator.text); } } (char_range | exact_chars | multi_line | max_chars) separator?;
+
+opt_comp:           '[' separator? opt_comp_cttnt separator? ']';
 
 opt_comp_cttnt:     (char_range | exact_chars | multi_line | max_chars | opt_comp | comp)+;
 
@@ -21,6 +53,8 @@ chr_class:          CHR_NUMERIC | CHR_ALPHA | CHR_ALPHA_NUM |
                     CHR_BLANK;
 
 cardinality:        DIGIT DIGIT?;
+
+separator:          SEPARATOR+;
 
 CHR_NUMERIC:        'n';
 CHR_ALPHA:          'a';

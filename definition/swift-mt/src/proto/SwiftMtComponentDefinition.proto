@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package message.definition.swift.mt;
+
+message SwiftMtComponentDefinition {
+    repeated ComponentContent formats = 1;
+}
+
+message ComponentContent {
+    bool optional = 1;
+    repeated ComponentContentFormat formats = 2;
+
+    string separator_before = 3;
+    string separator_after = 4;
+}
+
+message ComponentContentFormat {
+    oneof content_oneof {
+        ValueEntry value = 1;
+        ComponentContent child = 2;
+    }
+}
+
+message ValueEntry {
+    enum Charset {
+        NUMERIC = 0;
+        ALPHA = 1;
+        ALPHA_NUMERIC = 2;
+        HEX = 3;
+        X = 4;
+        Y = 5;
+        Z = 6;
+        DECIMAL = 7;
+        BLANK = 8;
+    }
+
+    oneof cardinality {
+        int64 exact_count = 1;
+        CharRange range_count = 2;
+        int64 max_count = 3;
+        LineRange line_count = 4;
+    }
+
+    Charset charset = 5;
+}
+
+message CharRange {
+    int64 min_count = 1;
+    int64 max_count = 2;
+}
+
+message LineRange {
+    int64 num_lines = 1;
+    int64 line_size = 2;
+}
