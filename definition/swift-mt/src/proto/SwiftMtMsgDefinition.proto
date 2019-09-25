@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "SwiftMtComponentDefinition.proto";
+
 package message.definition.swift.mt;
 
 message SwiftMtMessageDefinition {
@@ -41,17 +43,11 @@ message OptionDef {
     string option = 1;
     string full_format = 2;
     repeated ComponentName component_names = 3;
-    repeated ComponentFormatEntry component_formats = 4;
+    repeated ComponentContent component_formats = 4;
 }
 
 message ComponentName {
     string name = 1;
-    string separator_before = 2;
-    string separator_after = 3;
-}
-
-message ComponentFormatEntry {
-    string format = 1;
     string separator_before = 2;
     string separator_after = 3;
 }

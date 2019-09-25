@@ -1,6 +1,7 @@
 #ifndef LIBMESSAGE_MESSAGEINDEXPARSER_HPP
 #define LIBMESSAGE_MESSAGEINDEXPARSER_HPP
 
+#undef min
 #include "proto/SwiftMtMsgDefinition.pb.h"
 #include "SequenceStack.hpp"
 #include <log/Log.hpp>
@@ -39,22 +40,22 @@ namespace message::definition::swift::mt::definition {
 
         std::string _cache_path;
 
-        [[nodiscard]] bool is_cached(const web::MessageIndexEntry& entry) const;
+        [[nodiscard]] auto is_cached(const web::MessageIndexEntry& entry) const -> bool;
         void put_in_cache(const web::MessageIndexEntry& entry, const SwiftMtMessageDefinition& definition) const;
 
         void process_definition(const web::MessageIndexEntry& entry);
-        SwiftMtMessageDefinition parse_definition_from_detail_page(const web::MessageIndexEntry& entry, const std::string& detail_content);
+        auto parse_definition_from_detail_page(const web::MessageIndexEntry& entry, const std::string& detail_content) -> SwiftMtMessageDefinition;
 
         static void handle_sequence_start(const std::smatch& match, SequenceStack& sequence_stack);
         static void handle_sequence_end(SequenceStack& sequence_stack, SwiftMtMessageDefinition& msg_def);
 
         static void handle_repetition_end(const RepetitionDef& repetition, SequenceStack& sequence_stack, SwiftMtMessageDefinition& msg_def);
 
-        static std::vector<std::string> fields_from_row(const utils::http::HtmlNode& row, bool is_first_row, std::vector<utils::http::HtmlNode>& nodes);
+        static auto fields_from_row(const utils::http::HtmlNode& row, bool is_first_row, std::vector<utils::http::HtmlNode>& nodes) -> std::vector<std::string>;
 
-        static bool parse_field_indices(const std::vector<std::string>& names, RowMetaData& meta_data);
+        static auto parse_field_indices(const std::vector<std::string>& names, RowMetaData& meta_data) -> bool;
 
-        bool handle_common_field(SequenceStack& sequence_stack, RepetitionDef& repetition, bool is_in_repetition, SwiftMtMessageDefinition& msg_def, RowMetaData& meta_data, const utils::http::HtmlNode& row, bool is_first_row);
+        auto handle_common_field(SequenceStack& sequence_stack, RepetitionDef& repetition, bool is_in_repetition, SwiftMtMessageDefinition& msg_def, RowMetaData& meta_data, const utils::http::HtmlNode& row, bool is_first_row) -> bool;
 
         void handle_field_details(ObjectDef* obj, const std::string& detail_link);
 
@@ -62,11 +63,12 @@ namespace message::definition::swift::mt::definition {
         void load_qualifiers(ObjectDef* obj, const utils::http::HtmlDocument& document);
 
         void load_component_names(OptionDef* optn, const std::string& components);
+        static void load_component_formats(OptionDef* optn, const std::string& format);
 
-        std::vector<std::string> select_fields_as_string(const utils::http::ISelectable& element, const std::string& selector);
-        std::vector<std::string> select_fields_as_string(const utils::http::ISelectable& element, const std::string& selector, std::vector<utils::http::HtmlNode>& nodes);
+        auto select_fields_as_string(const utils::http::ISelectable& element, const std::string& selector) -> std::vector<std::string>;
+        auto select_fields_as_string(const utils::http::ISelectable& element, const std::string& selector, std::vector<utils::http::HtmlNode>& nodes) -> std::vector<std::string>;
 
-        std::string convert_children_to_string(const utils::http::HtmlNode& node, bool crlf = true) const;
+        [[nodiscard]] auto convert_children_to_string(const utils::http::HtmlNode& node, bool crlf = true) const -> std::string;
 
     public:
         /**

@@ -3,7 +3,7 @@
 #include "definition/MessageIndexParser.hpp"
 
 namespace message::definition::swift::mt {
-    int main() {
+    auto main() -> int {
         web::WebDefinitionRepository repo{"https://www2.swift.com/knowledgecentre/rest/v1/publications/usgf_20180720/3.0", "SR2018", "./cache"};
         web::MessageIndex index{repo};
 
@@ -13,6 +13,6 @@ namespace message::definition::swift::mt {
     }
 }
 
-int main() {
+auto main() -> int {
     return message::definition::swift::mt::main();
 }

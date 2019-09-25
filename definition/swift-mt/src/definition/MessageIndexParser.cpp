@@ -7,18 +7,21 @@
 
 #include <google/protobuf/util/json_util.h>
 #include <fstream>
-#include <string/comparison.hpp>
-#include <sstream>
 
 #ifndef USE_EXTERNAL_FILESYSTEM
 #include <filesystem>
 namespace fs = std::filesystem;
 #else
 #include <ghc/filesystem.hpp>
-#include <string/conversion.hpp>
-
 namespace fs = ghc::filesystem;
 #endif
+
+#include <string/conversion.hpp>
+#include <proto/SwiftMtComponentDefinition.pb.h>
+
+#undef ERROR
+#include <antlr/SwiftMtComponentFormatParser.h>
+#include <string/comparison.hpp>
 
 namespace message::definition::swift::mt::definition {
     LOGGER_IMPL(MessageIndexParser);
@@ -59,7 +62,7 @@ namespace message::definition::swift::mt::definition {
         os.write(json_definition.c_str(), json_definition.size());
     }
 
-    bool MessageIndexParser::is_cached(const web::MessageIndexEntry &entry) const {
+    auto MessageIndexParser::is_cached(const web::MessageIndexEntry &entry) const -> bool {
         fs::path cache_path{_cache_path};
         cache_path /= _repository.service_release();
         cache_path /= fmt::format("mt_{}.json", entry.message_type());
@@ -67,7 +70,7 @@ namespace message::definition::swift::mt::definition {
         return exists(cache_path);
     }
 
-    SwiftMtMessageDefinition MessageIndexParser::parse_definition_from_detail_page(const web::MessageIndexEntry &entry, const std::string &detail_content) {
+    auto MessageIndexParser::parse_definition_from_detail_page(const web::MessageIndexEntry &entry, const std::string &detail_content) -> SwiftMtMessageDefinition {
         utils::http::HtmlDocument document{detail_content};
 
         const auto rows = document.select("table.fmttable tr");
@@ -116,7 +119,7 @@ namespace message::definition::swift::mt::definition {
         return message_def;
     }
 
-    bool MessageIndexParser::parse_field_indices(const std::vector<std::string> &names, RowMetaData &meta_data) {
+    auto MessageIndexParser::parse_field_indices(const std::vector<std::string> &names, RowMetaData &meta_data) -> bool {
         int32_t tag_idx = -1;
         int32_t name_idx = -1;
         int32_t link_idx = -1;
@@ -210,7 +213,7 @@ namespace message::definition::swift::mt::definition {
         }
     }
 
-    std::vector<std::string> MessageIndexParser::fields_from_row(const utils::http::HtmlNode &row, bool is_first_row, std::vector<utils::http::HtmlNode> &nodes) {
+    auto MessageIndexParser::fields_from_row(const utils::http::HtmlNode &row, bool is_first_row, std::vector<utils::http::HtmlNode> &nodes) -> std::vector<std::string> {
         const auto fields = row.select(is_first_row ? "th" : "td");
         if (fields.empty()) {
             return {};
@@ -224,8 +227,8 @@ namespace message::definition::swift::mt::definition {
         return field_contents;
     }
 
-    bool MessageIndexParser::handle_common_field(SequenceStack &sequence_stack, RepetitionDef &repetition, bool is_in_repetition, SwiftMtMessageDefinition &msg_def,
-                                                 RowMetaData &meta_data, const utils::http::HtmlNode &row, bool is_first_row) {
+    auto MessageIndexParser::handle_common_field(SequenceStack &sequence_stack, RepetitionDef &repetition, bool is_in_repetition, SwiftMtMessageDefinition &msg_def,
+                                                 RowMetaData &meta_data, const utils::http::HtmlNode &row, bool is_first_row) -> bool {
         std::vector<utils::http::HtmlNode> nodes;
         std::vector<std::string> field_contents = fields_from_row(row, is_first_row, nodes);
         if (field_contents.empty()) {
@@ -282,7 +285,8 @@ namespace message::definition::swift::mt::definition {
             std::vector<utils::http::HtmlNode> nodes;
             const auto fields = select_fields_as_string(row, "td", nodes);
 
-            std::string option{}, format{};
+            std::string option{};
+            std::string format{};
             const auto first_field = fields[0];
 
             if (first_field.find("Option ") == 0) {
@@ -299,6 +303,7 @@ namespace message::definition::swift::mt::definition {
             opt->set_full_format(format);
 
             load_component_names(opt, convert_children_to_string(nodes.back()));
+            load_component_formats(opt, format);
         }
     }
 
@@ -355,14 +360,14 @@ namespace message::definition::swift::mt::definition {
         }
     }
 
-    std::vector<std::string> MessageIndexParser::select_fields_as_string(const utils::http::ISelectable &element, const std::string &selector) {
+    auto MessageIndexParser::select_fields_as_string(const utils::http::ISelectable &element, const std::string &selector) -> std::vector<std::string> {
         const auto nodes = element.select(selector);
         std::vector<std::string> fields{};
         std::transform(nodes.begin(), nodes.end(), std::back_inserter(fields), [](const auto &node) { return node.text(); });
         return fields;
     }
 
-    std::string MessageIndexParser::convert_children_to_string(const utils::http::HtmlNode &node, bool crlf) const {
+    auto MessageIndexParser::convert_children_to_string(const utils::http::HtmlNode &node, bool crlf) const -> std::string {
         std::stringstream strm;
         const auto children = node.children();
         for(const auto& child : children) {
@@ -398,12 +403,26 @@ namespace message::definition::swift::mt::definition {
         }
     }
 
-    std::vector<std::string> MessageIndexParser::select_fields_as_string(const utils::http::ISelectable &element, const std::string &selector,
-                                                std::vector<utils::http::HtmlNode>& nodes) {
+    auto MessageIndexParser::select_fields_as_string(const utils::http::ISelectable &element, const std::string &selector,
+                                                std::vector<utils::http::HtmlNode>& nodes) -> std::vector<std::string> {
         const auto element_nodes = element.select(selector);
         nodes.insert(nodes.end(), element_nodes.begin(), element_nodes.end());
         std::vector<std::string> fields{};
         std::transform(nodes.begin(), nodes.end(), std::back_inserter(fields), [](const auto &node) { return node.text(); });
         return fields;
+    }
+
+    void MessageIndexParser::load_component_formats(OptionDef *optn, const std::string &format) {
+        SwiftMtComponentDefinition comp_def{};
+        std::vector<std::string> errors{};
+
+        if(!SwiftMtComponentFormatParser::process_format(format, errors, comp_def)) {
+            log->error("Error processing component format: {}", utils::string::join(errors, ", "));
+            return;
+        }
+
+        for(const auto& def : comp_def.formats()) {
+            optn->add_component_formats()->MergeFrom(def);
+        }
     }
 }
