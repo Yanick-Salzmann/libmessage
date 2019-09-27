@@ -4,7 +4,7 @@ project(Utils)
 
 include(CheckIncludeFile)
 
-add_library(utils STATIC include/http/HttpClient.hpp src/http/HttpClient.cpp src/log/Log.cpp include/log/Log.hpp src/string/conversion.cpp include/string/conversion.hpp include/http/HtmlDocument.hpp src/http/HtmlDocument.cpp include/string/comparison.hpp src/string/comparison.cpp)
+add_library(utils STATIC include/http/HttpClient.hpp src/http/HttpClient.cpp src/log/Log.cpp include/log/Log.hpp src/string/conversion.cpp include/string/conversion.hpp include/http/HtmlDocument.hpp src/http/HtmlDocument.cpp include/string/comparison.hpp src/string/comparison.cpp include/misc/const_literals.hpp)
 
 add_dependencies(utils curl spdlog gumbo-query abseil)
 

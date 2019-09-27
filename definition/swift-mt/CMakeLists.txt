@@ -47,7 +47,7 @@ add_executable(swift-mt-web-repo
         ${CMAKE_CURRENT_SOURCE_DIR}/src/antlr/SwiftMtComponentFormatBaseListener.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/antlr/SwiftMtComponentFormatLexer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/antlr/SwiftMtComponentFormatListener.cpp
-        ${GENERATED_FILES} src/definition/MessageIndexParser.cpp src/definition/MessageIndexParser.hpp src/definition/SequenceStack.cpp src/definition/SequenceStack.hpp)
+        ${GENERATED_FILES} src/definition/MessageIndexParser.cpp src/definition/MessageIndexParser.hpp src/definition/SequenceStack.cpp src/definition/SequenceStack.hpp src/definition/ComponentFormatStack.cpp src/definition/ComponentFormatStack.hpp)
 
 target_compile_definitions(swift-mt-web-repo PUBLIC "-DANTLR4CPP_STATIC -D_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING")
 
