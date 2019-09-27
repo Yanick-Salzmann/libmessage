@@ -51,5 +51,12 @@ message CharRange {
 
 message LineRange {
     int64 num_lines = 1;
-    int64 line_size = 2;
+    oneof line_type_oneof {
+        int64 line_size = 2;
+        ComplexLineType complex_type = 3;
+    }
+}
+
+message ComplexLineType {
+    repeated ComponentContent formats = 1;
 }

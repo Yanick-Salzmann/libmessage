@@ -25,8 +25,13 @@ grammar SwiftMtComponentFormat;
 
     std::vector<std::string> _errors;
 
+    bool _is_in_line = false;
+
     std::stack<ComponentContent> _component_stack;
+    std::stack<ComponentContent> _complex_line_stack;
+
     SwiftMtComponentDefinition _components;
+    ComplexLineType _complex_line;
 
     bool process(std::vector<std::string>& errors) {
         _errors.clear();
@@ -63,20 +68,39 @@ grammar SwiftMtComponentFormat;
     [[nodiscard]] const std::vector<std::string>& errors() const { return _errors; }
 
     ComponentContent& current_comp() {
-        return _component_stack.top();
+        if (!_is_in_line) {
+            return _component_stack.top();
+        } else {
+            return _complex_line_stack.top();
+        }
     }
 
     void new_component() {
-        _component_stack.push(ComponentContent{});
+        if (!_is_in_line) {
+            _component_stack.push(ComponentContent{});
+        } else {
+            _complex_line_stack.push(ComponentContent{});
+        }
     }
 
     void end_component() {
-        const auto comp = _component_stack.top();
-        _component_stack.pop();
-        if(_component_stack.empty()) {
-            _components.add_formats()->MergeFrom(comp);
+        if (!_is_in_line) {
+            const auto comp = _component_stack.top();
+            _component_stack.pop();
+            if(_component_stack.empty()) {
+                _components.add_formats()->MergeFrom(comp);
+            } else {
+                _component_stack.top().add_formats()->mutable_child()->MergeFrom(comp);
+            }
         } else {
-            _component_stack.top().add_formats()->mutable_child()->MergeFrom(comp);
+            const auto comp = _complex_line_stack.top();
+            _complex_line_stack.pop();
+
+            if(_complex_line_stack.empty()) {
+                _complex_line.add_formats()->MergeFrom(comp);
+            } else {
+                _complex_line_stack.top().add_formats()->mutable_child()->MergeFrom(comp);
+            }
         }
     }
 
@@ -96,7 +120,7 @@ grammar SwiftMtComponentFormat;
     }
 }
 
-comp_format:        (comp | opt_comp)+;
+comp_format:        ('Empty field' | comp | opt_comp)+;
 
 comp
 @init { new_component(); }
@@ -164,15 +188,7 @@ multi_line locals [ ValueEntry* val = nullptr ]
     ComponentContentFormat* formats = current_comp().add_formats();
     $ctx->val = formats->mutable_value();
 }
-                    :
-                    lines {
-                        $ctx->val->mutable_line_count()->set_num_lines($lines.ctx->line_count);
-                        $ctx->val->mutable_line_count()->set_line_size($lines.ctx->line_size);
-                    }
-
-                    chr_class {
-                        $ctx->val->set_charset(map_char_set($chr_class.text[0]));
-                    };
+                    : lines[$ctx->val];
 
 max_chars locals [ ValueEntry* val = nullptr ]
 @init {
@@ -191,17 +207,46 @@ range locals [ int64_t rng_min = 0u, int64_t rng_max = 0u ] :
 exact_count locals [ int64_t count = 0u ] :
                     cardinality { $ctx->count = std::stoull($text); } '!';
 
-lines locals [ int64_t line_count = 0u, int64_t line_size = 0u ] :
-                    cardinality { $ctx->line_count = std::stoull($text); } '*' cardinality { $ctx->line_size = std::stoull($text); };
+lines
+        [ValueEntry* val]
+        locals [ int64_t line_count = 0u, int64_t line_size = 0u ] :
+                    cardinality { $ctx->line_count = std::stoull($text); } '*'
+                    (
+                        (
+                            cardinality {
+                                val->mutable_line_count()->set_num_lines($ctx->line_count);
+                                val->mutable_line_count()->set_line_size(std::stoull($text));
+                            }
+
+                            chr_class {
+                                val->set_charset(map_char_set($chr_class.text[0]));
+                            }
+                        )
+                        |
+                        complex_line {
+                            val->mutable_line_count()->set_num_lines($ctx->line_count);
+                            val->mutable_line_count()->mutable_complex_type()->MergeFrom(_complex_line);
+                        }
+                    );
 
 max_range locals [ int64_t max_size = 0u ] :
                     cardinality { $ctx->max_size = std::stoull($text); };
+
+complex_line
+@init {
+    _complex_line = ComplexLineType{};
+    _is_in_line = true;
+}
+@after {
+    _is_in_line = false;
+}
+                    : '(' comp_format ')';
 
 chr_class:          CHR_NUMERIC | CHR_ALPHA | CHR_ALPHA_NUM |
                     CHR_HEX | CHR_X | CHR_Y | CHR_Z | CHR_DECIMAL |
                     CHR_BLANK;
 
-cardinality:        DIGIT DIGIT?;
+cardinality:        DIGIT DIGIT*;
 
 separator:          SEPARATOR+;
 
