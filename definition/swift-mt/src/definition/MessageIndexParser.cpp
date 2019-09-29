@@ -5,6 +5,7 @@
 #include "http/HtmlDocument.hpp"
 #include "SequenceStack.hpp"
 #include "ComponentFormatStack.hpp"
+#include "ComponentNameStack.hpp"
 
 #include <google/protobuf/util/json_util.h>
 #include <fstream>
@@ -13,7 +14,9 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 #else
+
 #include <ghc/filesystem.hpp>
+
 namespace fs = ghc::filesystem;
 #endif
 
@@ -21,6 +24,7 @@ namespace fs = ghc::filesystem;
 #include <proto/SwiftMtComponentDefinition.pb.h>
 
 #undef ERROR
+
 #include <antlr/SwiftMtComponentFormatParser.h>
 #include <string/comparison.hpp>
 
@@ -312,20 +316,20 @@ namespace message::definition::swift::mt::definition {
         using utils::string::contains_ignore_case;
 
         const auto headers = select_fields_as_string(document, "table.qualifiertab tr th");
-        if(headers.empty()) {
+        if (headers.empty()) {
             return;
         }
 
         const auto itr_desc = std::find_if(headers.begin(), headers.end(), [](const auto &header) { return contains_ignore_case(header, "description"); });
         const auto itr_qlfr = std::find_if(headers.begin(), headers.end(), [](const auto &header) { return contains_ignore_case(header, "qualifier") && !contains_ignore_case(header, "description"); });
-        const auto itr_optns = std::find_if(headers.begin(), headers.end(), [](const auto& header) { return contains_ignore_case(header, "options"); });
+        const auto itr_optns = std::find_if(headers.begin(), headers.end(), [](const auto &header) { return contains_ignore_case(header, "options"); });
 
-        if(itr_qlfr == headers.end()) {
+        if (itr_qlfr == headers.end()) {
             log->warn("No column named 'Qualifier' found in field qualifier table");
             return;
         }
 
-        if(itr_optns == headers.end()) {
+        if (itr_optns == headers.end()) {
             log->warn("No column named 'Options' found in field qualifier table");
             return;
         }
@@ -335,19 +339,19 @@ namespace message::definition::swift::mt::definition {
         auto idx_optns = std::distance(headers.begin(), itr_optns);
 
         const auto qlfr_rows = document.select("table.qualifiertab tr");
-        for(const auto& row : qlfr_rows) {
+        for (const auto &row : qlfr_rows) {
             const auto values = select_fields_as_string(row, "td");
-            if(static_cast<ptrdiff_t>(values.size()) <= std::max<ptrdiff_t>(idx_desc, idx_qlfr)) {
+            if (static_cast<ptrdiff_t>(values.size()) <= std::max<ptrdiff_t>(idx_desc, idx_qlfr)) {
                 continue;
             }
 
-            auto* qlfr_def = obj->mutable_field()->add_qualifiers();
+            auto *qlfr_def = obj->mutable_field()->add_qualifiers();
             qlfr_def->set_qualifier(values[idx_qlfr]);
 
             auto options = values[idx_optns];
             std::smatch match;
-            while(std::regex_search(options, match, QUALIFIER_OPTIONS)) {
-                if(!match[2].matched) {
+            while (std::regex_search(options, match, QUALIFIER_OPTIONS)) {
+                if (!match[2].matched) {
                     continue;
                 }
 
@@ -355,7 +359,7 @@ namespace message::definition::swift::mt::definition {
                 options = match.suffix();
             }
 
-            if(idx_desc >= 0) {
+            if (idx_desc >= 0) {
                 qlfr_def->set_description(values[idx_desc]);
             }
         }
@@ -371,11 +375,11 @@ namespace message::definition::swift::mt::definition {
     auto MessageIndexParser::convert_children_to_string(const utils::http::HtmlNode &node, bool crlf) const -> std::string {
         std::stringstream strm;
         const auto children = node.children();
-        for(const auto& child : children) {
+        for (const auto &child : children) {
             const auto tag = utils::string::to_lower(child.tag_name());
-            if(tag == "br") {
+            if (tag == "br") {
                 strm << (crlf ? "\r\n" : "\n");
-            } else if(!tag.empty()) {
+            } else if (!tag.empty()) {
                 strm << convert_children_to_string(child, crlf);
             } else {
                 strm << child.text();
@@ -385,18 +389,18 @@ namespace message::definition::swift::mt::definition {
         return strm.str();
     }
 
-    void MessageIndexParser::load_component_names(OptionDef *optn, const std::string& components) {
+    void MessageIndexParser::load_component_names(OptionDef *optn, const std::string &components) {
         std::smatch match;
         auto remainder = components;
 
-        while(std::regex_search(remainder, match, COMPONENT_NAME_MATCHER)) {
-            auto* name = optn->add_component_names();
+        while (std::regex_search(remainder, match, COMPONENT_NAME_MATCHER)) {
+            auto *name = optn->add_component_names();
             name->set_name(match[2].str());
-            if(match[1].matched) {
+            if (match[1].matched) {
                 name->set_separator_before(match[1].str());
             }
 
-            if(match[3].matched) {
+            if (match[3].matched) {
                 name->set_separator_after(match[3].str());
             }
 
@@ -405,7 +409,7 @@ namespace message::definition::swift::mt::definition {
     }
 
     auto MessageIndexParser::select_fields_as_string(const utils::http::ISelectable &element, const std::string &selector,
-                                                std::vector<utils::http::HtmlNode>& nodes) -> std::vector<std::string> {
+                                                     std::vector<utils::http::HtmlNode> &nodes) -> std::vector<std::string> {
         const auto element_nodes = element.select(selector);
         nodes.insert(nodes.end(), element_nodes.begin(), element_nodes.end());
         std::vector<std::string> fields{};
@@ -417,16 +421,23 @@ namespace message::definition::swift::mt::definition {
         SwiftMtComponentDefinition comp_def{};
         std::vector<std::string> errors{};
 
-        if(!SwiftMtComponentFormatParser::process_format(format, errors, comp_def)) {
+        if (!SwiftMtComponentFormatParser::process_format(format, errors, comp_def)) {
             log->error("Error processing component format: {}", utils::string::join(errors, ", "));
             return;
         }
 
-        for(const auto& def : comp_def.formats()) {
+        for (const auto &def : comp_def.formats()) {
             optn->add_component_formats()->MergeFrom(def);
         }
 
         ComponentFormatStack format_stack{comp_def};
-        log->info("Processed stack: {}", format_stack.format_list().size());
+        ComponentNameStack name_stack{optn->component_names()};
+
+        const auto& formats = format_stack.format_list();
+        const auto& names = name_stack.names();
+
+        if(formats.size() == names.size()) {
+            log->info("Matched format: {}", optn->option());
+        }
     }
 }

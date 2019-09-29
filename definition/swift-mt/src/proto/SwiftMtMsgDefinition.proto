@@ -44,6 +44,7 @@ message OptionDef {
     string full_format = 2;
     repeated ComponentName component_names = 3;
     repeated ComponentContent component_formats = 4;
+    repeated ComponentDef components = 5;
 }
 
 message ComponentName {
@@ -56,4 +57,11 @@ message QualifierDef {
     string qualifier = 1;
     repeated string options = 2;
     string description = 3;
+}
+
+message ComponentDef {
+    string name = 1;
+    string separator_before = 2;
+    string separator_after = 3;
+    repeated ComponentContent format = 4;
 }

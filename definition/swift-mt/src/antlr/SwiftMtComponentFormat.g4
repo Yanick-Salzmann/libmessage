@@ -248,7 +248,7 @@ chr_class:          CHR_NUMERIC | CHR_ALPHA | CHR_ALPHA_NUM |
 
 cardinality:        DIGIT DIGIT*;
 
-separator:          SEPARATOR+;
+separator:          SEPARATOR | CRLF;
 
 CHR_NUMERIC:        'n';
 CHR_ALPHA:          'a';
@@ -260,6 +260,7 @@ CHR_Z:              'z';
 CHR_DECIMAL:        'd';
 CHR_BLANK:          'e';
 
+CRLF                '\r' '\n';
 DIGIT:              '0'..'9';
 SEPARATOR:          . ;
 

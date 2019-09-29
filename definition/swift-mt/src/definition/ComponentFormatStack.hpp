@@ -8,6 +8,7 @@
 
 namespace message::definition::swift::mt {
     class ComponentFormatStack {
+    public:
         class ComponentFormatEntry {
             std::string _separator;
             ValueEntry _element;
@@ -23,6 +24,8 @@ namespace message::definition::swift::mt {
                 return _is_separator;
             }
         };
+
+    private:
 
         SwiftMtComponentDefinition _root_component;
 
@@ -52,7 +55,7 @@ namespace message::definition::swift::mt {
 
         auto total_format_count() const -> std::size_t;
 
-        const std::list<ComponentFormatEntry>& format_list() const {
+        [[nodiscard]] auto format_list() const -> const std::list<ComponentFormatEntry>& {
             return _rule_list;
         }
     };
