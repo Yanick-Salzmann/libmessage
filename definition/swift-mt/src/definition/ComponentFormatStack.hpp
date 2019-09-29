@@ -7,16 +7,42 @@
 
 namespace message::definition::swift::mt {
     class ComponentFormatStack {
+        class ComponentFormatEntry {
+            std::string _separator;
+            ValueEntry _element;
+
+            bool _is_separator = false;
+            bool _is_optional = false;
+
+        public:
+            explicit ComponentFormatEntry(std::string separator) : _separator(std::move(separator)), _is_separator(true) { }
+            explicit ComponentFormatEntry(ValueEntry element, bool optional) : _element(std::move(element)), _is_optional(optional) { }
+
+            bool is_separator() const {
+                return _is_separator;
+            }
+        };
+
         SwiftMtComponentDefinition _root_component;
 
-        ComponentContent _active_content{};
-        std::function<void()> _increment;
+        std::list<ComponentFormatEntry> _rule_list;
 
-        bool _is_at_end = false;
+        void add_non_empty_separator(const std::string& separator) {
+            if(separator.empty()) {
+                return;
+            }
 
-        void move_initial();
+            _rule_list.emplace_back(separator);
+        }
 
-        auto compute_advance(SwiftMtComponentDefinition parent, ComponentContent current, std::size_t index) -> std::function<void()>;
+        void add_value_entry(ValueEntry entry, bool is_optional) {
+            _rule_list.emplace_back(std::move(entry), is_optional);
+        }
+
+        void process_format_entry(const ComponentContent& format);
+        void process_format_value(const ComponentContentFormat& format, bool is_optional);
+
+        void flat_map_formats();
 
         auto count_child_formats(const ComponentContent& format) const -> std::size_t;
 

@@ -4,29 +4,7 @@
 namespace message::definition::swift::mt {
 
     ComponentFormatStack::ComponentFormatStack(SwiftMtComponentDefinition root_component) : _root_component(std::move(root_component)) {
-        move_initial();
-    }
-
-    void ComponentFormatStack::move_initial() {
-        if(_root_component.formats().empty()) {
-            _is_at_end = true;
-            return;
-        }
-
-        _active_content = _root_component.formats(0);
-        _increment = compute_advance(_root_component, _active_content, 1);
-    }
-
-    auto ComponentFormatStack::compute_advance(SwiftMtComponentDefinition parent, ComponentContent current, std::size_t index) -> std::function<void()> {
-        if(index >= parent.formats_size()) {
-            return [this]() {
-                _is_at_end = true;
-            };
-        } else {
-            return [this]() {
-                _is_at_end = true;
-            };
-        }
+        flat_map_formats();
     }
 
     auto ComponentFormatStack::total_format_count() const -> std::size_t {
@@ -51,5 +29,29 @@ namespace message::definition::swift::mt {
         }
 
         return cur_count;
+    }
+
+    void ComponentFormatStack::flat_map_formats() {
+        for(const auto& format : _root_component.formats()) {
+            process_format_entry(format);
+        }
+    }
+
+    void ComponentFormatStack::process_format_entry(const ComponentContent &format) {
+        add_non_empty_separator(format.separator_before());
+
+        for(const auto& entry : format.formats()) {
+            process_format_value(entry, format.optional());
+        }
+
+        add_non_empty_separator(format.separator_after());
+    }
+
+    void ComponentFormatStack::process_format_value(const ComponentContentFormat &format, bool is_optional) {
+        if(format.content_oneof_case() == ComponentContentFormat::kChild) {
+            process_format_entry(format.child());
+        } else {
+            add_value_entry(format.value(), is_optional);
+        }
     }
 }
