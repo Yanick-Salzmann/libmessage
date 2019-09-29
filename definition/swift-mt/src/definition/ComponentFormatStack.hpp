@@ -4,6 +4,7 @@
 #include "proto/SwiftMtComponentDefinition.pb.h"
 
 #include <functional>
+#include <list>
 
 namespace message::definition::swift::mt {
     class ComponentFormatStack {
@@ -50,6 +51,10 @@ namespace message::definition::swift::mt {
         explicit ComponentFormatStack(SwiftMtComponentDefinition root_component);
 
         auto total_format_count() const -> std::size_t;
+
+        const std::list<ComponentFormatEntry>& format_list() const {
+            return _rule_list;
+        }
     };
 
 }

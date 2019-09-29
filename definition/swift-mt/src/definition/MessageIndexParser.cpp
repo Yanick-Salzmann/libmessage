@@ -4,6 +4,7 @@
 #include "MessageIndexParser.hpp"
 #include "http/HtmlDocument.hpp"
 #include "SequenceStack.hpp"
+#include "ComponentFormatStack.hpp"
 
 #include <google/protobuf/util/json_util.h>
 #include <fstream>
@@ -424,5 +425,8 @@ namespace message::definition::swift::mt::definition {
         for(const auto& def : comp_def.formats()) {
             optn->add_component_formats()->MergeFrom(def);
         }
+
+        ComponentFormatStack format_stack{comp_def};
+        log->info("Processed stack: {}", format_stack.format_list().size());
     }
 }
