@@ -5,8 +5,8 @@
 #include <cstdint>
 #include <cstring>
 
-inline constexpr auto operator "" _z(uint64_t value) -> std::size_t {
-    return static_cast<std::size_t>(value);
+inline constexpr auto operator "" _z(unsigned long long n) -> std::size_t {
+    return static_cast<std::size_t>(n);
 }
 
 #endif //LIBMESSAGE_CONST_LITERALS_HPP
