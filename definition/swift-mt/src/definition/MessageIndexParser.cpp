@@ -270,7 +270,8 @@ namespace message::definition::swift::mt::definition {
         }
 
         obj->set_tag(tag);
-        obj->mutable_field()->set_tag(name);
+        obj->mutable_field()->set_tag(tag);
+        obj->mutable_field()->set_name(name);
         handle_field_details(obj, _repository.download_topic(link));
         return true;
     }
@@ -308,7 +309,7 @@ namespace message::definition::swift::mt::definition {
             opt->set_full_format(format);
 
             load_component_names(opt, convert_children_to_string(nodes.back()));
-            load_component_formats(opt, format);
+            load_component_formats(opt, format, field_def->tag());
         }
     }
 
@@ -417,7 +418,7 @@ namespace message::definition::swift::mt::definition {
         return fields;
     }
 
-    void MessageIndexParser::load_component_formats(OptionDef *optn, const std::string &format) {
+    void MessageIndexParser::load_component_formats(OptionDef *optn, const std::string &format, const std::string& tag) {
         SwiftMtComponentDefinition comp_def{};
         std::vector<std::string> errors{};
 
@@ -430,14 +431,63 @@ namespace message::definition::swift::mt::definition {
             optn->add_component_formats()->MergeFrom(def);
         }
 
+        if(tag.substr(0, 2) == "16") {
+            log->info("Matched format: {}", tag);
+            return;
+        }
+
         ComponentFormatStack format_stack{comp_def};
         ComponentNameStack name_stack{optn->component_names()};
 
         const auto& formats = format_stack.format_list();
         const auto& names = name_stack.names();
 
-        if(formats.size() == names.size()) {
-            log->info("Matched format: {}", optn->option());
+        const auto num_non_separator_formats = std::count_if(formats.begin(), formats.end(), [](const auto& element) { return !element.is_separator(); });
+        const auto num_non_separator_names = std::count_if(names.begin(), names.end(), [](const auto& names) { return !names.is_separator(); });
+
+        if(num_non_separator_formats == num_non_separator_names) {
+            log->info("Matched format (phase 1): {}", optn->option());
+            return;
         }
+
+        const auto format_entries = load_components_by_separator(formats);
+        if(format_entries.size() == num_non_separator_names) {
+            log->info("Matched format (phase 2): {}", optn->option());
+            return;
+        }
+
+        log->warn("Not matched: {} <-> {}", num_non_separator_formats, num_non_separator_names);
+    }
+
+    auto MessageIndexParser::load_components_by_separator(const std::list<ComponentFormatStack::ComponentFormatEntry> &formats) -> std::vector<ComponentSeparatorEntry> {
+        auto has_separator_first = false;
+        ComponentSeparatorEntry cur_entry{};
+
+        std::vector<ComponentSeparatorEntry> entries{};
+
+        for(const auto& element : formats) {
+            if(element.is_separator()) {
+                if(!has_separator_first) {
+                    cur_entry.separator_before = element.separator();
+                    has_separator_first = true;
+                    continue;
+                }
+
+                cur_entry.separator_after = element.separator();
+                entries.emplace_back(cur_entry);
+
+                has_separator_first = false;
+                cur_entry = {};
+                continue;
+            }
+
+            cur_entry.formats.emplace_back(element.value_entry());
+        }
+
+        if(!formats.empty() && has_separator_first) {
+            entries.emplace_back(cur_entry);
+        }
+
+        return entries;
     }
 }

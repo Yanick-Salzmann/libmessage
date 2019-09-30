@@ -260,7 +260,7 @@ CHR_Z:              'z';
 CHR_DECIMAL:        'd';
 CHR_BLANK:          'e';
 
-CRLF                '\r' '\n';
+CRLF:               '\r' '\n';
 DIGIT:              '0'..'9';
 SEPARATOR:          . ;
 

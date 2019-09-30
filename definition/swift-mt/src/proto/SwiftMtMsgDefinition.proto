@@ -35,6 +35,7 @@ message SequenceDef {
 
 message FieldDef {
     string tag = 1;
+    string name = 2;
     repeated OptionDef options = 5;
     repeated QualifierDef qualifiers = 10;
 }

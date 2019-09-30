@@ -20,8 +20,16 @@ namespace message::definition::swift::mt {
             explicit ComponentFormatEntry(std::string separator) : _separator(std::move(separator)), _is_separator(true) { }
             explicit ComponentFormatEntry(ValueEntry element, bool optional) : _element(std::move(element)), _is_optional(optional) { }
 
-            bool is_separator() const {
+            auto is_separator() const -> bool {
                 return _is_separator;
+            }
+
+            auto separator() const -> const std::string& {
+                return _separator;
+            }
+
+            auto value_entry() const -> const ValueEntry& {
+                return _element;
             }
         };
 

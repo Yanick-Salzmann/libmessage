@@ -4,6 +4,7 @@
 #undef min
 #include "proto/SwiftMtMsgDefinition.pb.h"
 #include "SequenceStack.hpp"
+#include "ComponentFormatStack.hpp"
 #include <log/Log.hpp>
 
 #include <list>
@@ -23,6 +24,12 @@ namespace message::definition::swift::mt::definition {
         struct RowMetaData {
             uint32_t idx_tag = 0, idx_name = 0, idx_link = 0, idx_optnl = 0;
             uint32_t max_field_index = 0;
+        };
+
+        struct ComponentSeparatorEntry {
+            std::string separator_before;
+            std::vector<ValueEntry> formats;
+            std::string separator_after;
         };
 
         const std::regex SEQUENCE_REGEX{"(-+> )?((Mandatory )|(Optional ))(Repetitive )?(Subs|S)equence ([^ ]+) ?(.*)?"};
@@ -63,10 +70,12 @@ namespace message::definition::swift::mt::definition {
         void load_qualifiers(ObjectDef* obj, const utils::http::HtmlDocument& document);
 
         void load_component_names(OptionDef* optn, const std::string& components);
-        static void load_component_formats(OptionDef* optn, const std::string& format);
+        static void load_component_formats(OptionDef* optn, const std::string& format, const std::string& tag);
 
         auto select_fields_as_string(const utils::http::ISelectable& element, const std::string& selector) -> std::vector<std::string>;
         auto select_fields_as_string(const utils::http::ISelectable& element, const std::string& selector, std::vector<utils::http::HtmlNode>& nodes) -> std::vector<std::string>;
+
+        static auto load_components_by_separator(const std::list<ComponentFormatStack::ComponentFormatEntry>& formats) -> std::vector<ComponentSeparatorEntry>;
 
         [[nodiscard]] auto convert_children_to_string(const utils::http::HtmlNode& node, bool crlf = true) const -> std::string;
 

@@ -16,6 +16,10 @@ namespace message::definition::swift::mt {
         public:
             explicit ComponentNameEntry(std::string separator) : _separator(std::move(separator)), _is_separator(true) { }
             explicit ComponentNameEntry(ComponentName name) : _name(std::move(name)), _is_separator(false) { }
+
+            auto is_separator() const -> bool {
+                return _is_separator;
+            }
         };
 
     private:
