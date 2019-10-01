@@ -15,10 +15,11 @@ namespace message::definition::swift::mt {
 
             bool _is_separator = false;
             bool _is_optional = false;
+            uint32_t _depth = 0U;
 
         public:
-            explicit ComponentFormatEntry(std::string separator) : _separator(std::move(separator)), _is_separator(true) { }
-            explicit ComponentFormatEntry(ValueEntry element, bool optional) : _element(std::move(element)), _is_optional(optional) { }
+            explicit ComponentFormatEntry(std::string separator, uint32_t depth) : _separator(std::move(separator)), _is_separator(true), _depth(depth) { }
+            explicit ComponentFormatEntry(ValueEntry element, bool optional, uint32_t depth) : _element(std::move(element)), _is_optional(optional), _depth(depth) { }
 
             auto is_separator() const -> bool {
                 return _is_separator;
@@ -31,6 +32,10 @@ namespace message::definition::swift::mt {
             auto value_entry() const -> const ValueEntry& {
                 return _element;
             }
+
+            auto depth() const -> uint32_t {
+                return _depth;
+            }
         };
 
     private:
@@ -39,20 +44,20 @@ namespace message::definition::swift::mt {
 
         std::list<ComponentFormatEntry> _rule_list;
 
-        void add_non_empty_separator(const std::string& separator) {
+        void add_non_empty_separator(const std::string& separator, uint32_t depth) {
             if(separator.empty()) {
                 return;
             }
 
-            _rule_list.emplace_back(separator);
+            _rule_list.emplace_back(separator, depth);
         }
 
-        void add_value_entry(ValueEntry entry, bool is_optional) {
-            _rule_list.emplace_back(std::move(entry), is_optional);
+        void add_value_entry(ValueEntry entry, bool is_optional, uint32_t depth) {
+            _rule_list.emplace_back(std::move(entry), is_optional, depth);
         }
 
-        void process_format_entry(const ComponentContent& format);
-        void process_format_value(const ComponentContentFormat& format, bool is_optional);
+        void process_format_entry(const ComponentContent& format, uint32_t depth);
+        void process_format_value(const ComponentContentFormat& format, bool is_optional, uint32_t depth);
 
         void flat_map_formats();
 

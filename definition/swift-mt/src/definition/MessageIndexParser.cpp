@@ -456,6 +456,15 @@ namespace message::definition::swift::mt::definition {
             return;
         }
 
+        std::vector<ComponentFormatStack::ComponentFormatEntry> top_level_formats{};
+        std::copy_if(formats.begin(), formats.end(), std::back_inserter(top_level_formats), [](const auto& entry) { return entry.depth() == 0; });
+        const auto num_non_separator_top_level_formats = std::count_if(top_level_formats.begin(), top_level_formats.end(), [](const auto& element) { return !element.is_separator(); });
+
+        if(num_non_separator_top_level_formats == num_non_separator_names) {
+            log->info("Matched format (phase 3): {}", optn->option());
+            return;
+        }
+
         log->warn("Not matched: {} <-> {}", num_non_separator_formats, num_non_separator_names);
     }
 

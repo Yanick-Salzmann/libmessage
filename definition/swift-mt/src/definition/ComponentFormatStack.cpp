@@ -33,25 +33,25 @@ namespace message::definition::swift::mt {
 
     void ComponentFormatStack::flat_map_formats() {
         for(const auto& format : _root_component.formats()) {
-            process_format_entry(format);
+            process_format_entry(format, 0);
         }
     }
 
-    void ComponentFormatStack::process_format_entry(const ComponentContent &format) {
-        add_non_empty_separator(format.separator_before());
+    void ComponentFormatStack::process_format_entry(const ComponentContent &format, uint32_t depth) {
+        add_non_empty_separator(format.separator_before(), depth);
 
         for(const auto& entry : format.formats()) {
-            process_format_value(entry, format.optional());
+            process_format_value(entry, format.optional(), depth);
         }
 
-        add_non_empty_separator(format.separator_after());
+        add_non_empty_separator(format.separator_after(), depth);
     }
 
-    void ComponentFormatStack::process_format_value(const ComponentContentFormat &format, bool is_optional) {
+    void ComponentFormatStack::process_format_value(const ComponentContentFormat &format, bool is_optional, uint32_t depth) {
         if(format.content_oneof_case() == ComponentContentFormat::kChild) {
-            process_format_entry(format.child());
+            process_format_entry(format.child(), depth + 1);
         } else {
-            add_value_entry(format.value(), is_optional);
+            add_value_entry(format.value(), is_optional, depth);
         }
     }
 }
