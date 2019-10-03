@@ -79,6 +79,15 @@ namespace message::definition::swift::mt::definition {
 
         [[nodiscard]] auto convert_children_to_string(const utils::http::HtmlNode& node, bool crlf = true) const -> std::string;
 
+        template<typename T>
+        static bool advance_to_next_separator(T& start, const T& end, const std::string& separator) {
+            while(start != end && !(*start).is_separator() && (*start).separator() != separator) {
+                ++start;
+            }
+
+            return start != end;
+        }
+
     public:
         /**
          * Initializes this message index parser with the online repository to use, the index containing

@@ -418,7 +418,7 @@ namespace message::definition::swift::mt::definition {
         return fields;
     }
 
-    void MessageIndexParser::load_component_formats(OptionDef *optn, const std::string &format, const std::string& tag) {
+    void MessageIndexParser::load_component_formats(OptionDef *optn, const std::string &format, const std::string &tag) {
         SwiftMtComponentDefinition comp_def{};
         std::vector<std::string> errors{};
 
@@ -431,7 +431,7 @@ namespace message::definition::swift::mt::definition {
             optn->add_component_formats()->MergeFrom(def);
         }
 
-        if(tag.substr(0, 2) == "16") {
+        if (tag.substr(0, 2) == "16") {
             log->info("Matched format: {}", tag);
             return;
         }
@@ -439,29 +439,59 @@ namespace message::definition::swift::mt::definition {
         ComponentFormatStack format_stack{comp_def};
         ComponentNameStack name_stack{optn->component_names()};
 
-        const auto& formats = format_stack.format_list();
-        const auto& names = name_stack.names();
+        const auto &formats = format_stack.format_list();
+        const auto &names = name_stack.names();
 
-        const auto num_non_separator_formats = std::count_if(formats.begin(), formats.end(), [](const auto& element) { return !element.is_separator(); });
-        const auto num_non_separator_names = std::count_if(names.begin(), names.end(), [](const auto& names) { return !names.is_separator(); });
+        const auto num_non_separator_formats = std::count_if(formats.begin(), formats.end(), [](const auto &element) { return !element.is_separator(); });
+        const auto num_non_separator_names = std::count_if(names.begin(), names.end(), [](const auto &names) { return !names.is_separator(); });
 
-        if(num_non_separator_formats == num_non_separator_names) {
+        if (num_non_separator_formats == num_non_separator_names) {
             log->info("Matched format (phase 1): {}", optn->option());
             return;
         }
 
         const auto format_entries = load_components_by_separator(formats);
-        if(format_entries.size() == num_non_separator_names) {
+        if (format_entries.size() == num_non_separator_names) {
             log->info("Matched format (phase 2): {}", optn->option());
             return;
         }
 
         std::vector<ComponentFormatStack::ComponentFormatEntry> top_level_formats{};
-        std::copy_if(formats.begin(), formats.end(), std::back_inserter(top_level_formats), [](const auto& entry) { return entry.depth() == 0; });
-        const auto num_non_separator_top_level_formats = std::count_if(top_level_formats.begin(), top_level_formats.end(), [](const auto& element) { return !element.is_separator(); });
+        std::copy_if(formats.begin(), formats.end(), std::back_inserter(top_level_formats), [](const auto &entry) { return entry.depth() == 0; });
+        const auto num_non_separator_top_level_formats = std::count_if(top_level_formats.begin(), top_level_formats.end(), [](const auto &element) { return !element.is_separator(); });
 
-        if(num_non_separator_top_level_formats == num_non_separator_names) {
+        if (num_non_separator_top_level_formats == num_non_separator_names) {
             log->info("Matched format (phase 3): {}", optn->option());
+            return;
+        }
+
+        auto next_name_separator = std::find_if(names.begin(), names.end(), [](const auto &name) { return name.is_separator(); });
+        auto last_name_iterator = names.begin();
+        auto last_format_iterator = formats.begin();
+
+        uint32_t num_by_separator_formats = 0U;
+        auto has_non_single_components = false;
+
+        while(next_name_separator != names.end()) {
+            auto part_size = std::distance(last_name_iterator, next_name_separator);
+            if(part_size == 0) {
+                if(!advance_to_next_separator(last_format_iterator, formats.end(), (*next_name_separator).separator())) {
+                    break;
+                }
+
+                continue;
+            } else if(part_size == 1) {
+                ++num_by_separator_formats;
+            } else {
+                has_non_single_components = true;
+            }
+
+            last_name_iterator = ++next_name_separator;
+            next_name_separator = std::find_if(next_name_separator, names.end(), [](const auto& name) { return name.is_separator(); });
+        }
+
+        if(num_by_separator_formats == num_non_separator_formats && !has_non_single_components) {
+            log->info("Matched format (phase 4): {}", optn->option());
             return;
         }
 
@@ -474,9 +504,9 @@ namespace message::definition::swift::mt::definition {
 
         std::vector<ComponentSeparatorEntry> entries{};
 
-        for(const auto& element : formats) {
-            if(element.is_separator()) {
-                if(!has_separator_first) {
+        for (const auto &element : formats) {
+            if (element.is_separator()) {
+                if (!has_separator_first) {
                     cur_entry.separator_before = element.separator();
                     has_separator_first = true;
                     continue;
@@ -493,7 +523,7 @@ namespace message::definition::swift::mt::definition {
             cur_entry.formats.emplace_back(element.value_entry());
         }
 
-        if(!formats.empty() && has_separator_first) {
+        if (!formats.empty() && has_separator_first) {
             entries.emplace_back(cur_entry);
         }
 

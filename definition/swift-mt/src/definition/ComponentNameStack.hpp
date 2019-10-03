@@ -20,6 +20,10 @@ namespace message::definition::swift::mt {
             auto is_separator() const -> bool {
                 return _is_separator;
             }
+
+            auto separator() const -> const std::string& {
+                return _separator;
+            }
         };
 
     private:
